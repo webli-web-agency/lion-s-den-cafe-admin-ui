@@ -1,4 +1,5 @@
-document.getElementById("uploadBtn").addEventListener("click", async () => {
+document.getElementById("uploadBtn").addEventListener("click", async (e) => {
+  e.preventDefault();
   const fileInput = document.getElementById("fileInput");
   const status = document.getElementById("status");
 
@@ -11,21 +12,23 @@ document.getElementById("uploadBtn").addEventListener("click", async () => {
   const formData = new FormData();
   formData.append("menu", fileInput.files[0]);
 
-  try {
-    const res = await fetch("https://lionsdencafe.onrender.com/upload-menu", {
-      method: "POST",
-      body: formData,
-    });
+  status.textContent = "Uploading...";
+  status.style.color = "blue";
 
-    const data = await res.json();
+  try {
+    const res = await axios.post("https://lionsdencafe.onrender.com/upload-menu", formData)
+    
+    const data = res.data; // ✅ axios auto-parses JSON
+
     if (data.success) {
       status.textContent = "✅ Menu uploaded successfully.";
       status.style.color = "green";
     } else {
-      status.textContent = "❌ " + data.message;
+      status.textContent = "❌ " + (data.message || "Upload failed.");
       status.style.color = "red";
     }
   } catch (err) {
+    console.error("Upload failed:", err);
     status.textContent = "❌ Upload failed. Check server or CORS settings.";
     status.style.color = "red";
   }
